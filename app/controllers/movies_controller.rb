@@ -13,11 +13,19 @@ class MoviesController < ApplicationController
   def index
     @movies = Movie.all
     sort = %w{title release_date}
+    if params[:ratings]
+      @movies = Movie.get_allratings(params[:ratings].keys)
+    else
+      @movies = Movie.all
+    end    
     @sortbythis = {}
 
-    if sort.include?(params[:sort])
-      @movies = @movies.order(params[:sort])
-      @sortbythis[params[:sort]] = 'hilite'
+    @all_ratings = %w{G PG PG-13 R}
+
+    sortby = params[:sort]
+    if sort.include?(sortby)
+      @movies = @movies.order(sortby)
+      @sortbythis[sortby] = 'hilite'
     end
   end
 
