@@ -7,8 +7,9 @@
     Include:
     - @all_ratings.each do |rating|
       = rating
-      = check_box_tag "ratings[#{rating}]"
+      = check_box_tag "ratings[#{rating}]", 1, @ratings.include?(rating)
     = submit_tag 'Refresh'
+    = link_to "Reset", movies_path(:reset => 1)
 
 
 %table#movies.table.table-striped.col-md-12

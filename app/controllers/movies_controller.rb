@@ -12,22 +12,53 @@ class MoviesController < ApplicationController
 
   def index
     @movies = Movie.all
-    sort = %w{title release_date}
+    @ratings = %w{G PG PG-13 R}
+
+
+
+    redirection = false
+# see if user wants to reset
+    if params[:reset]
+      session.clear
+      return redirect_to movies_path
+    end
+#see if rating passed as parameter
     if params[:ratings]
-      @movies = Movie.get_allratings(params[:ratings].keys)
-    else
-      @movies = Movie.all
+      @ratings = params[:ratings].keys
+    elsif session[:ratings]
+      @ratings = session[:ratings]
+      redirection = true
     end    
-    @sortbythis = {}
+    session[:ratings] = @ratings
 
     @all_ratings = %w{G PG PG-13 R}
+    @sortbythis = {}
 
-    sortby = params[:sort]
-    if sort.include?(sortby)
-      @movies = @movies.order(sortby)
-      @sortbythis[sortby] = 'hilite'
+    @sortby = nil
+#see if sort is passed as parameter
+    if params[:sort]
+      @sortby = params[:sort]
+    elsif session[:sort]
+      @sortby = session[:sort]
+      redirection = true
+    end
+
+    session[:sort] = @sortby
+
+
+    @movies = Movie.get_allratings(@ratings)
+    if @sortby
+      @movies = @movies.order(@sortby)
+      @sortbythis[@sortby] = 'hilite'
+    end
+
+    if redirection
+      return redirect_to movies_path(
+        :ratings => Hash[@ratings.collect { |item| [item, 1] } ],
+        :sort => @sortby)
     end
   end
+
 
   def new
     # default: render 'new' template
